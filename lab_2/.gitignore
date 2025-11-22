@@ -1,0 +1,7 @@
+*.exe
+*.obj
+*.res
+!ml*.exe
+!link*.exe
+!rc*.exe
+!cvtres*.exe

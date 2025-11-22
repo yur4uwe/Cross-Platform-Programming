@@ -1,0 +1,19 @@
+#define DS_MODALFRAME	0x80L
+#define DS_3DLOOK	4
+#define WS_POPUP	0x80000000L
+#define WS_CAPTION	0xC00000L
+#define WS_SYSMENU	0x80000L
+#define ID_OK		701
+#define ID_NO       702
+#define IDC_STATIC	-1
+#define WS_BORDER	0x800000L
+#define IDD_CONFIRM_EXIT 700
+
+IDD_CONFIRM_EXIT DIALOG DISCARDABLE 0,0,150,60
+STYLE DS_MODALFRAME | DS_3DLOOK | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "U wevvy wanna weave me here?"
+{
+    CTEXT "You really wanna leave me? ,_,", -1, 10,10,130,10
+    DEFPUSHBUTTON "yea ;_;", ID_OK, 25, 35, 40, 14
+    DEFPUSHBUTTON "no! ^_^", ID_NO, 85, 35, 40, 14
+}

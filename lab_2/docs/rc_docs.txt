@@ -1,0 +1,18 @@
+
+
+Microsoft (R) Windows 32 Resource Compiler, Version 4.00 - Build 1135
+
+Usage:  rc [options] .RC input file
+Switches:
+   /r    Emit .RES file (optional)
+   /v    Verbose (print progress messages)
+   /d    Define a symbol
+   /fo   Rename .RES file
+   /l    Default language ID in hex
+   /i    Add a path for INCLUDE searches
+   /x    Ignore INCLUDE environment variable
+   /c    Define a code page used by NLS conversion
+Flags may be either upper or lower case
+
+
+

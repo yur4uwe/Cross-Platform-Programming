@@ -1,0 +1,53 @@
+Microsoft (R) 32-Bit Incremental Linker Version 3.00.5270
+Copyright (C) Microsoft Corp 1992-1995. All rights reserved.
+
+usage: LINK [options] [files] [@commandfile]
+
+   options:
+
+      /ALIGN:#
+      /BASE:{address|@filename,key}
+      /COMMENT:comment
+      /DEBUG
+      /DEBUGTYPE:{CV|COFF|BOTH}
+      /DEF:filename
+      /DEFAULTLIB:library
+      /DLL
+      /DRIVER[:UPONLY]
+      /ENTRY:symbol
+      /EXETYPE:DYNAMIC
+      /EXPORT:symbol
+      /FIXED
+      /FORCE[:{MULTIPLE|UNRESOLVED}]
+      /GPSIZE:#
+      /HEAP:reserve[,commit]
+      /IMPORT:[symbol][,][LIB=container][,WEAK=1]
+      /IMPORT:[CURRENTVER=#][,][OLDCODEVER=#][,][OLDAPIVER=#]
+      /IMPLIB:filename
+      /INCLUDE:symbol
+      /INCREMENTAL:{YES|NO}
+      /MAC:{BUNDLE|NOBUNDLE|TYPE=xxxx|CREATOR=xxxx|INIT=symbol|TERM=symbol}
+      /MAC:{MFILEPAD|NOMFILEPAD}
+      /MACDATA:filename
+      /MACHINE:{IX86|MIPS|ALPHA|PPC|M68K|MPPC}
+      /MACRES:filename
+      /MAP[:filename]
+      /MERGE:from=to
+      /NODEFAULTLIB[:library]
+      /NOENTRY
+      /NOLOGO
+      /OPT:{REF|NOREF}
+      /ORDER:@filename
+      /OUT:filename
+      /PDB:{filename|NONE}
+      /PROFILE
+      /RELEASE
+      /SECTION:name,[E][R][W][S][D][K][L][P][X]
+      /SHARED
+      /STACK:reserve[,commit]
+      /STUB:filename
+      /SUBSYSTEM:{NATIVE|WINDOWS|CONSOLE|POSIX}[,#[.##]]
+      /VERBOSE[:LIB]
+      /VERSION:#[.#]
+      /VXD
+      /WARN[:warninglevel]
