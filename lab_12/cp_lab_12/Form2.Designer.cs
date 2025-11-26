@@ -1,0 +1,278 @@
+﻿namespace cp_lab_12
+{
+    partial class Form2
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            this.GraphBox = new System.Windows.Forms.PictureBox();
+            this.PeriodNum = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
+            this.HotReload = new System.Windows.Forms.CheckBox();
+            this.SwitchtoCartesianButton = new System.Windows.Forms.Button();
+            this.GraphButton = new System.Windows.Forms.Button();
+            this.Points = new System.Windows.Forms.NumericUpDown();
+            this.label3 = new System.Windows.Forms.Label();
+            this.FuncComboBox = new System.Windows.Forms.ComboBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.ParamBNumeric = new System.Windows.Forms.NumericUpDown();
+            this.label6 = new System.Windows.Forms.Label();
+            this.ParamANumeric = new System.Windows.Forms.NumericUpDown();
+            ((System.ComponentModel.ISupportInitialize)(this.GraphBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PeriodNum)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Points)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ParamBNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ParamANumeric)).BeginInit();
+            this.SuspendLayout();
+            // 
+            // GraphBox
+            // 
+            this.GraphBox.Location = new System.Drawing.Point(0, 0);
+            this.GraphBox.Name = "GraphBox";
+            this.GraphBox.Size = new System.Drawing.Size(636, 452);
+            this.GraphBox.TabIndex = 1;
+            this.GraphBox.TabStop = false;
+            // 
+            // PeriodNum
+            // 
+            this.PeriodNum.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.PeriodNum.Location = new System.Drawing.Point(646, 32);
+            this.PeriodNum.Name = "PeriodNum";
+            this.PeriodNum.Size = new System.Drawing.Size(120, 26);
+            this.PeriodNum.TabIndex = 5;
+            this.PeriodNum.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label1.Location = new System.Drawing.Point(642, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(104, 20);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "No of Periods";
+            // 
+            // HotReload
+            // 
+            this.HotReload.AutoSize = true;
+            this.HotReload.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.HotReload.Location = new System.Drawing.Point(646, 320);
+            this.HotReload.Name = "HotReload";
+            this.HotReload.Size = new System.Drawing.Size(109, 24);
+            this.HotReload.TabIndex = 13;
+            this.HotReload.Text = "Hot Reload";
+            this.HotReload.UseVisualStyleBackColor = true;
+            this.HotReload.CheckedChanged += new System.EventHandler(this.HotReload_CheckedChanged);
+            // 
+            // SwitchtoCartesianButton
+            // 
+            this.SwitchtoCartesianButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.SwitchtoCartesianButton.Location = new System.Drawing.Point(645, 395);
+            this.SwitchtoCartesianButton.Name = "SwitchtoCartesianButton";
+            this.SwitchtoCartesianButton.Size = new System.Drawing.Size(147, 36);
+            this.SwitchtoCartesianButton.TabIndex = 12;
+            this.SwitchtoCartesianButton.Text = "Open Cartesian";
+            this.SwitchtoCartesianButton.UseVisualStyleBackColor = true;
+            this.SwitchtoCartesianButton.Click += new System.EventHandler(this.SwitchtoCartesianButton_Click);
+            // 
+            // GraphButton
+            // 
+            this.GraphButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.GraphButton.Location = new System.Drawing.Point(645, 357);
+            this.GraphButton.Name = "GraphButton";
+            this.GraphButton.Size = new System.Drawing.Size(147, 32);
+            this.GraphButton.TabIndex = 11;
+            this.GraphButton.Text = "Graph";
+            this.GraphButton.UseVisualStyleBackColor = true;
+            this.GraphButton.Click += new System.EventHandler(this.GraphButton_Click);
+            // 
+            // Points
+            // 
+            this.Points.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Points.Location = new System.Drawing.Point(668, 64);
+            this.Points.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.Points.Name = "Points";
+            this.Points.Size = new System.Drawing.Size(56, 26);
+            this.Points.TabIndex = 15;
+            this.Points.Value = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label3.Location = new System.Drawing.Point(642, 66);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(20, 20);
+            this.label3.TabIndex = 14;
+            this.label3.Text = "N";
+            // 
+            // FuncComboBox
+            // 
+            this.FuncComboBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.FuncComboBox.FormattingEnabled = true;
+            this.FuncComboBox.Location = new System.Drawing.Point(646, 127);
+            this.FuncComboBox.Name = "FuncComboBox";
+            this.FuncComboBox.Size = new System.Drawing.Size(121, 28);
+            this.FuncComboBox.TabIndex = 16;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label4.Location = new System.Drawing.Point(642, 104);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(152, 20);
+            this.label4.TabIndex = 17;
+            this.label4.Text = "Choose the function";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label7.Location = new System.Drawing.Point(666, 195);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(18, 20);
+            this.label7.TabIndex = 22;
+            this.label7.Text = "b";
+            // 
+            // ParamBNumeric
+            // 
+            this.ParamBNumeric.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.ParamBNumeric.Location = new System.Drawing.Point(692, 193);
+            this.ParamBNumeric.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.ParamBNumeric.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.ParamBNumeric.Name = "ParamBNumeric";
+            this.ParamBNumeric.Size = new System.Drawing.Size(54, 26);
+            this.ParamBNumeric.TabIndex = 21;
+            this.ParamBNumeric.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label6.Location = new System.Drawing.Point(668, 163);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(18, 20);
+            this.label6.TabIndex = 20;
+            this.label6.Text = "a";
+            // 
+            // ParamANumeric
+            // 
+            this.ParamANumeric.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.ParamANumeric.Location = new System.Drawing.Point(692, 161);
+            this.ParamANumeric.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.ParamANumeric.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.ParamANumeric.Name = "ParamANumeric";
+            this.ParamANumeric.Size = new System.Drawing.Size(54, 26);
+            this.ParamANumeric.TabIndex = 19;
+            this.ParamANumeric.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // Form2
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.ParamBNumeric);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.ParamANumeric);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.FuncComboBox);
+            this.Controls.Add(this.Points);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.HotReload);
+            this.Controls.Add(this.SwitchtoCartesianButton);
+            this.Controls.Add(this.GraphButton);
+            this.Controls.Add(this.PeriodNum);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.GraphBox);
+            this.Name = "Form2";
+            this.Text = "Form2";
+            ((System.ComponentModel.ISupportInitialize)(this.GraphBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PeriodNum)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Points)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ParamBNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ParamANumeric)).EndInit();
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
+        }
+
+        #endregion
+
+        private System.Windows.Forms.PictureBox GraphBox;
+        private System.Windows.Forms.NumericUpDown PeriodNum;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.CheckBox HotReload;
+        private System.Windows.Forms.Button SwitchtoCartesianButton;
+        private System.Windows.Forms.Button GraphButton;
+        private System.Windows.Forms.NumericUpDown Points;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ComboBox FuncComboBox;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.NumericUpDown ParamBNumeric;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.NumericUpDown ParamANumeric;
+    }
+}
