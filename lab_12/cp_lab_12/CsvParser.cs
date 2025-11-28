@@ -6,12 +6,6 @@ using System.Linq;
 
 namespace cp_lab_12
 {
-    /// <summary>
-    /// Small CSV loader for two-column numeric CSV files.
-    /// - Auto-detects delimiter (comma / semicolon / tab) on first non-empty line.
-    /// - Skips a header row when the first non-empty row is non-numeric.
-    /// - Throws on malformed lines (wrong columns or non-numeric values).
-    /// </summary>
     public static class CsvParser
     {
         private static bool TryParseDoubleFlexible(string s, out double value)
@@ -55,7 +49,7 @@ namespace cp_lab_12
                         if (commaCount >= semicolonCount && commaCount >= tabCount && commaCount > 0) delimiter = ',';
                         else if (semicolonCount >= commaCount && semicolonCount >= tabCount && semicolonCount > 0) delimiter = ';';
                         else if (tabCount > 0) delimiter = '\t';
-                        else delimiter = ','; // fallback
+                        else delimiter = ',';
 
                         delimiterDetected = true;
                     }
@@ -74,7 +68,6 @@ namespace cp_lab_12
                     {
                         if (!looksNumeric)
                         {
-                            // first non-empty non-numeric row — treat as header and skip
                             headerSkipped = true;
                             continue;
                         }

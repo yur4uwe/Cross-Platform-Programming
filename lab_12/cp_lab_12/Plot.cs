@@ -49,7 +49,6 @@ namespace cp_lab_12
             }
         }
 
-        // tx: double x -> float pixelX; ty: double y -> float pixelY
         public void Draw(Graphics g, Func<double, float> tx, Func<double, float> ty)
         {
             if (PointCount == 0) return;

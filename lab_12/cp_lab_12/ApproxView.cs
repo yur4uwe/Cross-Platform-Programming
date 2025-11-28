@@ -67,7 +67,7 @@ namespace cp_lab_12
 
             graph.ClearPlots();
 
-            var dataLS = new LineStyle(Color.Red, 2f, DashStyle.Dot);
+            var dataLS = new LineStyle(Color.Green, 6f, DashStyle.Dot);
             var approxLS = new LineStyle(Color.Blue, 2f, DashStyle.Solid);
 
             var dataPlt = new Plot(LoadedX, LoadedY, dataLS);
