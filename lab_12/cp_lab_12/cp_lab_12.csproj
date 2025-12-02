@@ -54,6 +54,7 @@
       <DependentUpon>ApproxView.cs</DependentUpon>
     </Compile>
     <Compile Include="CsvParser.cs" />
+    <Compile Include="GaussianApproximation.cs" />
     <Compile Include="ViewManager.cs">
       <SubType>Form</SubType>
     </Compile>

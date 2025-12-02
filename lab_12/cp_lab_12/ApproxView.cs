@@ -52,35 +52,57 @@ namespace cp_lab_12
                 return;
             }
 
-            int degree;
-            ApproximationMethod method;
             try
             {
-                degree = Convert.ToInt32(ApproxDegree.Value);
-                method = (ApproximationMethod)ApproxTypeSelect.SelectedIndex;
+                int degree = Convert.ToInt32(ApproxDegree.Value);
+                var method = (ApproximationMethod)ApproxTypeSelect.SelectedIndex;
+
+                double[] x, y;
+                if (method == ApproximationMethod.Gaussian)
+                {
+                    (x, y) = (Approximation.HardcodedXdata, Approximation.HardcodedYdata);
+                }
+                else
+                {
+                    (x, y) = (LoadedX, LoadedY);
+                }
+
+                graph.ClearPlots();
+
+                var dataLS = new LineStyle(Color.Green, 6f, DashStyle.Dot);
+                var approxLS = new LineStyle(Color.Blue, 2f, DashStyle.Solid);
+
+                var dataPlt = new Plot(x, y, dataLS);
+                graph.AddPlot(dataPlt);
+
+                var (approxX, approxY) = ApproximateData(degree, method);
+                var approxPlt = new Plot(approxX, approxY, approxLS);
+
+                graph.AddPlot(approxPlt);
+
+                updater();
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error updating graph: " + ex.Message);
                 return;
-            }
+            }            
+        }
 
-            graph.ClearPlots();
-
-            var dataLS = new LineStyle(Color.Green, 6f, DashStyle.Dot);
-            var approxLS = new LineStyle(Color.Blue, 2f, DashStyle.Solid);
-
-            var dataPlt = new Plot(LoadedX, LoadedY, dataLS);
-            graph.AddPlot(dataPlt);
-
-            var coeffs = Approximation.ApproximatePolynomial(LoadedX, LoadedY, degree);
+        private (double[], double[]) ApproximateData(int degree, ApproximationMethod method)
+        {
             var points = Math.Max(50, Math.Min(1000, LoadedX.Length * 10));
-            var (approxX, approxY) = Approximation.EvaluatePolynomialOnGrid(LoadedX.Min(), LoadedX.Max(), coeffs, degree, points);
-            var approxPlt = new Plot(approxX, approxY, approxLS);
-
-            graph.AddPlot(approxPlt);
-
-            updater();
+            switch (method)
+            {
+                case ApproximationMethod.Polynomial:
+                    var coeffs = Approximation.ApproximatePolynomial(LoadedX, LoadedY, degree);
+                    return Approximation.EvaluatePolynomialOnGrid(LoadedX.Min(), LoadedX.Max(), coeffs, degree, points);
+                case ApproximationMethod.Gaussian:
+                    var gaussParams = Approximation.ApproximateGaussian();
+                    return Approximation.EvaluateGaussianOnGrid(gaussParams, points);
+                default:
+                    throw new NotSupportedException("Unsupported approximation method");
+            }
         }
 
         private void LoadCsvButton_Click(object sender, EventArgs e)

@@ -2,40 +2,24 @@
 
 namespace cp_lab_12
 {
-    internal class Approximation
+    partial class Approximation
     {
-        // Sum elements of an array
-        private static double Sum(double[] arr)
-        {
-            double s = 0.0;
-            foreach (var v in arr)
-            {
-                s += v;
-            }
-            return s;
-        }
 
         // Gaussian elimination with partial pivoting.
         // A: square matrix (will not be modified - we operate on a copy).
         // B: right-hand side vector.
         // n: matrix dimension.
         // X: out solution vector (assigned when returns true).
-        public static double[] Gauss(double[,] A, double[] B, int n)
+        public static double[] Gauss(double[,] A, double[] B)
         {
             if (A == null) throw new ArgumentNullException(nameof(A));
             if (B == null) throw new ArgumentNullException(nameof(B));
-            if (n <= 0) throw new ArgumentOutOfRangeException(nameof(n));
-            if (B.Length < n) throw new ArgumentException("B length is less than n.");
+
+            int n = B.Length;
 
             // Make local copies to avoid mutating the caller's arrays
-            double[,] a = new double[n, n];
-            double[] b = new double[n];
-            for (int i = 0; i < n; i++)
-            {
-                b[i] = B[i];
-                for (int j = 0; j < n; j++)
-                    a[i, j] = A[i, j];
-            }
+            double[,] a = (double[,])A.Clone();
+            double[] b = (double[])B.Clone();
 
             const double eps = 1e-12;
 
@@ -57,8 +41,7 @@ namespace cp_lab_12
 
                 if (maxAbs < eps)
                 {
-                    // Matrix is singular (or nearly singular)
-                    return null;
+                    throw new InvalidOperationException($"Matrix is singular or nearly singular: pivot magnitude {maxAbs:E} at column {col} is below threshold {eps:E}.");
                 }
 
                 // Swap rows if needed
@@ -99,7 +82,7 @@ namespace cp_lab_12
                 }
 
                 if (Math.Abs(a[i, i]) < eps)
-                    return null; // singular
+                    throw new InvalidOperationException($"Matrix is singular or nearly singular: zero pivot on diagonal at row {i}.");
 
                 x[i] = sum / a[i, i];
             }
@@ -115,7 +98,8 @@ namespace cp_lab_12
         {
             if (xData == null) throw new ArgumentNullException(nameof(xData));
             if (yData == null) throw new ArgumentNullException(nameof(yData));
-            if (degree < 0) throw new ArgumentOutOfRangeException(nameof(degree));
+            if (xData.Length != yData.Length) throw new ArgumentException("xData and yData must have the same length.", nameof(yData));
+            if (degree < 0) throw new ArgumentOutOfRangeException(nameof(degree), "degree must be non-negative.");
 
             int m = degree;
             int dim = m + 1;
@@ -155,7 +139,7 @@ namespace cp_lab_12
             }
 
             // Solve A * coeffs = rhs
-            return Gauss(normalA, rhs, dim);
+            return Gauss(normalA, rhs);
         }
 
         // Evaluate polynomial (coefficients c0..cm) on a uniform grid between xStart and xEnd.
@@ -165,8 +149,9 @@ namespace cp_lab_12
         public static (double[], double[]) EvaluatePolynomialOnGrid(double xStart, double xEnd, double[] coeffs, int degree, int gridPoints)
         {
             if (coeffs == null) throw new ArgumentNullException(nameof(coeffs));
-            if (degree < 0) throw new ArgumentOutOfRangeException(nameof(degree));
-            if (gridPoints <= 0) throw new ArgumentOutOfRangeException(nameof(gridPoints));
+            if (degree < 0) throw new ArgumentOutOfRangeException(nameof(degree), "degree must be non-negative.");
+            if (coeffs.Length < degree + 1) throw new ArgumentException("coeffs array length must be at least degree + 1.", nameof(coeffs));
+            if (gridPoints <= 1) throw new ArgumentOutOfRangeException(nameof(gridPoints), "gridPoints must be greater than 1 to form a grid.");
 
             double step = (xEnd - xStart) / (gridPoints - 1);
             double x = xStart;
