@@ -49,6 +49,7 @@ namespace cp_lab_12
         {
             if (!CSVLoaded)
             {
+                MessageBox.Show("Please load a CSV file first.");
                 return;
             }
 
@@ -112,7 +113,14 @@ namespace cp_lab_12
                 Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*"
             };
 
-            if (dialog.ShowDialog() != DialogResult.OK) {
+            var res = dialog.ShowDialog();
+
+            if (res == DialogResult.Abort || res == DialogResult.None || res == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            if (res != DialogResult.OK) {
                 MessageBox.Show("Dialog failure");
                 return;
             }
@@ -143,6 +151,22 @@ namespace cp_lab_12
             {
                 ApproxDegree.ValueChanged -= ApproximateButton_Click;
                 ApproxTypeSelect.SelectedIndexChanged -= ApproximateButton_Click;
+            }
+        }
+
+        private void ApproxTypeSelect_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (ApproxTypeSelect.SelectedIndex == (int)ApproximationMethod.Gaussian)
+            {
+                CSVLoaded = true;
+                LoadedX = Approximation.HardcodedXdata;
+                LoadedY = Approximation.HardcodedYdata;
+            } 
+            else
+            {
+                CSVLoaded = false;
+                LoadedX = new double[] { };
+                LoadedY = new double[] { };
             }
         }
     }

@@ -37,7 +37,6 @@
             this.HotReloadEnabler = new System.Windows.Forms.CheckBox();
             this.ApproximateButton = new System.Windows.Forms.Button();
             this.LoadCsvButton = new System.Windows.Forms.Button();
-            this.textBox2 = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.ApproxDegree)).BeginInit();
             this.SuspendLayout();
             // 
@@ -84,6 +83,7 @@
             this.ApproxTypeSelect.Name = "ApproxTypeSelect";
             this.ApproxTypeSelect.Size = new System.Drawing.Size(121, 28);
             this.ApproxTypeSelect.TabIndex = 35;
+            this.ApproxTypeSelect.SelectedIndexChanged += new System.EventHandler(this.ApproxTypeSelect_SelectedIndexChanged);
             // 
             // label4
             // 
@@ -147,18 +147,10 @@
             this.LoadCsvButton.UseVisualStyleBackColor = true;
             this.LoadCsvButton.Click += new System.EventHandler(this.LoadCsvButton_Click);
             // 
-            // textBox2
-            // 
-            this.textBox2.Location = new System.Drawing.Point(7, 170);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(100, 20);
-            this.textBox2.TabIndex = 40;
-            // 
             // ApproxView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.textBox2);
             this.Controls.Add(this.SwitchToCartesianButton);
             this.Controls.Add(this.SwitchToPolarButton);
             this.Controls.Add(this.label1);
@@ -187,6 +179,5 @@
         private System.Windows.Forms.CheckBox HotReloadEnabler;
         private System.Windows.Forms.Button ApproximateButton;
         private System.Windows.Forms.Button LoadCsvButton;
-        private System.Windows.Forms.TextBox textBox2;
     }
 }
