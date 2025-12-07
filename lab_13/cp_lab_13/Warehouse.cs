@@ -9,44 +9,6 @@ using System.Windows.Forms;
 
 namespace cp_lab_13
 {
-    public enum ProductGroup
-    {
-        Books,
-        CDs,
-        DVDs,
-        MobilePhones,
-        Players,
-        Accessories,
-        Displays,
-        Cases,
-        PowerSupplies,
-        Keyboards
-    }
-
-    public enum Providers
-    {
-        ProviderA,
-        ProviderB,
-        ProviderC,
-        ProviderD
-    }
-
-    public enum Units
-    {
-        Piece,
-        Box,
-        Pack,
-        Set
-    }
-
-    public enum Currency
-    {
-        USD,
-        EUR,
-        GBP,
-        JPY
-    }
-
     public class WarehouseItem
     {
         public ProductGroup Group;
@@ -54,9 +16,10 @@ namespace cp_lab_13
         public string Manufacturer;
         public Providers Provider;
         public Units Units;
+        public Currency Currency;
         public decimal Price;
         public int Quantity;
-        public WarehouseItem(ProductGroup group, string name, string manufacturer, Providers provider, Units units,
+        public WarehouseItem(ProductGroup group, string name, string manufacturer, Providers provider, Units units, Currency curr,
                              int quantity, decimal price)
         {
             Group = group;
@@ -66,6 +29,7 @@ namespace cp_lab_13
             Price = price;
             Provider = provider;
             Units = units;
+            Currency = curr;
         }
     }
 
@@ -89,13 +53,14 @@ namespace cp_lab_13
 
         // Constructor - creates table structure
         public TWarehouse()
-        { 
+        {
             WarehouseTable.Columns.Add(new DataColumn("Number", typeof(int)));
             WarehouseTable.Columns.Add(new DataColumn("Group", typeof(ProductGroup)));
             WarehouseTable.Columns.Add(new DataColumn("Name", typeof(string)));
             WarehouseTable.Columns.Add(new DataColumn("Manufacturer", typeof(string)));
             WarehouseTable.Columns.Add(new DataColumn("Provider", typeof(Providers)));
             WarehouseTable.Columns.Add(new DataColumn("Units", typeof(Units)));
+            WarehouseTable.Columns.Add(new DataColumn("Currency", typeof(Currency)));
             WarehouseTable.Columns.Add(new DataColumn("Quantity", typeof(int)));
             WarehouseTable.Columns.Add(new DataColumn("Price", typeof(decimal)));
             WarehouseTable.Columns.Add(new DataColumn("Total", typeof(decimal)));
@@ -116,6 +81,7 @@ namespace cp_lab_13
             newRow["Provider"] = w.Provider;
             newRow["Units"] = w.Units;
             newRow["Quantity"] = w.Quantity;
+            newRow["Currency"] = w.Currency;
             newRow["Price"] = w.Price;
             newRow["Total"] = w.Quantity * w.Price;
 
@@ -272,9 +238,6 @@ namespace cp_lab_13
         {
             if (dgv == null) return;
 
-            // normalize DataTable rows first (ensures DataRow values are enum instances)
-            NormalizeEnumColumnValues();
-
             // collect enum columns to convert
             var enumCols = WarehouseTable.Columns
                 .OfType<DataColumn>()
@@ -315,6 +278,7 @@ namespace cp_lab_13
                         row["Manufacturer"].ToString(),
                         row["Provider"].ToString(),
                         row["Units"].ToString(),
+                        row["Currency"].ToString(),
                         row["Quantity"].ToString(),
                         row["Price"].ToString()
                     );
@@ -351,18 +315,18 @@ namespace cp_lab_13
 
                     string[] parts = textRow.Split(',');
 
-                    if (parts.Length != 7)
+                    if (parts.Length != 8)
                     {
                         MessageBox.Show($"Invalid data format in file on row {rowNumber}");
                         continue;
                     }
 
-                    if (!int.TryParse(parts[5], out int quantity))
+                    if (!int.TryParse(parts[6], out int quantity))
                     {
                         MessageBox.Show($"Invalid quantity in file on row {rowNumber}");
                         continue;
                     }
-                    if (!decimal.TryParse(parts[6], out decimal price))
+                    if (!decimal.TryParse(parts[7], out decimal price))
                     {
                         MessageBox.Show($"Invalid price in file on row {rowNumber}");
                         continue;
@@ -382,6 +346,11 @@ namespace cp_lab_13
                         MessageBox.Show($"Invalid units in file on row {rowNumber}");
                         continue;
                     }
+                    if (!Enum.TryParse(parts[5], true, out Currency currency))
+                    {
+                        MessageBox.Show($"Invalid currency in file on row {rowNumber}");
+                        continue;
+                    }
 
 
                     WarehouseItem row = new WarehouseItem(
@@ -390,6 +359,7 @@ namespace cp_lab_13
                         parts[2],
                         provider,
                         units,
+                        currency,
                         quantity,
                         price
                     );
@@ -398,9 +368,6 @@ namespace cp_lab_13
                 }
 
                 sr.Close();
-
-                // Normalize any enum values loaded from older CSVs that might be strings/numbers
-                NormalizeEnumColumnValues();
 
                 SetSummaryTransposed(dgvSum);
             }
@@ -773,6 +740,143 @@ namespace cp_lab_13
             }
 
             dgv.Refresh();
+        }
+
+        public void ClearFilters(DataGridView dgv)
+        {
+            WarehouseView.RowFilter = string.Empty;
+            FilterCriteria = string.Empty;
+            dgv.DataSource = WarehouseView;
+            dgv.Refresh();
+        }
+
+        public Dictionary<ProductGroup, decimal> GetTotalValuePerGroup()
+        {
+            var totals = new Dictionary<ProductGroup, decimal>();
+            foreach (DataRow r in WarehouseTable.Rows)
+            {
+                try
+                {
+                    var grpObj = r["Group"];
+                    if (grpObj == DBNull.Value) continue;
+                    var grp = (ProductGroup)grpObj;
+                    decimal rowTotal = 0M;
+                    if (r["Total"] != DBNull.Value)
+                        rowTotal = Convert.ToDecimal(r["Total"]);
+                    else
+                        rowTotal = Convert.ToDecimal(r["Quantity"]) * Convert.ToDecimal(r["Price"]);
+
+                    if (totals.ContainsKey(grp)) totals[grp] += rowTotal;
+                    else totals[grp] = rowTotal;
+                }
+                catch { /* skip malformed row */ }
+            }
+            return totals;
+        }
+
+        public Dictionary<string, int> GetLowStockProducts()
+        {
+            var low = new Dictionary<string, int>();
+            foreach (DataRow r in WarehouseTable.Rows)
+            {
+                try
+                {
+                    string name = r["Name"] == DBNull.Value ? string.Empty : r["Name"].ToString();
+                    int qty = r["Quantity"] != DBNull.Value ? Convert.ToInt32(r["Quantity"]) : 0;
+                    if (qty <= 5) low[name] = qty;
+                }
+                catch { }
+            }
+            return low.OrderBy(t => t.Value).ToDictionary(t => t.Key, t => t.Value);
+        }
+
+        public Dictionary<Providers, decimal> GetTotalValuePerProvider()
+        {
+            var totals = new Dictionary<Providers, decimal>();
+            foreach (DataRow r in WarehouseTable.Rows)
+            {
+                try
+                {
+                    var provObj = r["Provider"];
+                    if (provObj == DBNull.Value) continue;
+                    var prov = (Providers)provObj;
+                    decimal rowTotal = r["Total"] != DBNull.Value ? Convert.ToDecimal(r["Total"]) :
+                                       Convert.ToDecimal(r["Quantity"]) * Convert.ToDecimal(r["Price"]);
+
+                    if (totals.ContainsKey(prov)) totals[prov] += rowTotal;
+                    else totals[prov] = rowTotal;
+                }
+                catch { }
+            }
+            return totals;
+        }
+
+        public Dictionary<ProductGroup, decimal> GetAveragePricePerGroup()
+        {
+            var sums = new Dictionary<ProductGroup, decimal>();
+            var counts = new Dictionary<ProductGroup, int>();
+            foreach (DataRow r in WarehouseTable.Rows)
+            {
+                try
+                {
+                    var grpObj = r["Group"];
+                    if (grpObj == DBNull.Value) continue;
+                    var grp = (ProductGroup)grpObj;
+                    decimal price = r["Price"] != DBNull.Value ? Convert.ToDecimal(r["Price"]) : 0M;
+                    if (counts.ContainsKey(grp))
+                    {
+                        sums[grp] += price;
+                        counts[grp] += 1;
+                    }
+                    else
+                    {
+                        sums[grp] = price;
+                        counts[grp] = 1;
+                    }
+                }
+                catch { }
+            }
+
+            var avg = new Dictionary<ProductGroup, decimal>();
+            foreach (var k in sums.Keys)
+                avg[k] = counts[k] > 0 ? sums[k] / counts[k] : 0M;
+            return avg;
+        }
+
+        public Dictionary<Units, int> GetUnitsDistribution()
+        {
+            var dist = new Dictionary<Units, int>();
+            foreach (DataRow r in WarehouseTable.Rows)
+            {
+                try
+                {
+                    var uObj = r["Units"];
+                    if (uObj == DBNull.Value) continue;
+                    var u = (Units)uObj;
+                    if (dist.ContainsKey(u)) dist[u] += 1;
+                    else dist[u] = 1;
+                }
+                catch { }
+            }
+            return dist;
+        }
+
+        public void ExportStatsToCsv<TKey, TValue>(Dictionary<TKey, TValue> stats, string path)
+        {
+            try
+            {
+                using (var sw = new StreamWriter(path, false, Encoding.UTF8))
+                {
+                    foreach (var kv in stats)
+                    {
+                        sw.WriteLine($"{kv.Key},{kv.Value}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to export statistics: " + ex.Message);
+            }
         }
     }
 }

@@ -14,9 +14,10 @@ namespace cp_lab_13
     {
         private readonly Form _ownerForm;
         private readonly ToolStripTextBox _textBox;
-        private readonly Func<string, List<Tuple<int, int>>> _searchFunc;
-        private readonly Func<int, string> _displayFunc;
-        private readonly Action<int> _onSelect;
+        // made non-readonly so we can rebind when active warehouse changes
+        private Func<string, List<Tuple<int, int>>> _searchFunc;
+        private Func<int, string> _displayFunc;
+        private Action<int> _onSelect;
         private readonly ToolStripDropDown _dropDown;
         private readonly ListBox _listBox;
         private readonly List<int> _resultIndices = new List<int>();
@@ -48,9 +49,6 @@ namespace cp_lab_13
                 HorizontalScrollbar = false
             };
 
-            // no keyboard or focus-driven selection behavior: only show suggestions
-            // _listBox.DoubleClick, KeyDown and LostFocus handlers intentionally NOT attached
-
             var host = new ToolStripControlHost(_listBox)
             {
                 Padding = Padding.Empty,
@@ -60,7 +58,6 @@ namespace cp_lab_13
 
             _dropDown = new ToolStripDropDown
             {
-                // Disable AutoClose so typing in the textbox won't automatically close the dropdown while text changes
                 AutoClose = false,
                 Padding = Padding.Empty,
             };
@@ -70,11 +67,19 @@ namespace cp_lab_13
             _subscribedTextBoxControl = true;
         }
 
+        // Allow rebinding the search/display functions (use when active warehouse changes)
+        public void UpdateBindings(Func<string, List<Tuple<int, int>>> searchFunc, Func<int, string> displayFunc, Action<int> onSelect = null)
+        {
+            if (searchFunc == null) throw new ArgumentNullException(nameof(searchFunc));
+            if (displayFunc == null) throw new ArgumentNullException(nameof(displayFunc));
+            _searchFunc = searchFunc;
+            _displayFunc = displayFunc;
+            if (onSelect != null) _onSelect = onSelect;
+        }
+
         // Public method: call from the ToolStripTextBox.TextChanged event handle
         public void ShowFor(string pattern)
         {
-            // Don't Hide() first — avoid focus flicker while updating suggestions
-
             if (string.IsNullOrWhiteSpace(pattern))
             {
                 Hide();
@@ -187,21 +192,6 @@ namespace cp_lab_13
                     }
                 }
             }
-        }
-
-        private void ListBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            // kept for compatibility but NOT attached; left intentionally empty
-        }
-
-        private void ListBox_DoubleClick(object sender, EventArgs e)
-        {
-            // kept for compatibility but NOT attached; left intentionally empty
-        }
-
-        private void ListBox_LostFocus(object sender, EventArgs e)
-        {
-            // kept for compatibility but NOT attached; left intentionally empty
         }
 
         private void TextBoxControl_LostFocus(object sender, EventArgs e)
