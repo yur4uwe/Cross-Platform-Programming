@@ -64,7 +64,6 @@ namespace cp_lab_13
             }
         }
 
-        // Convenience overloads for TWarehouse
         public void PrintPreview(TWarehouse wh, string title = null) => PrintPreview(wh?.WarehouseTable, title);
         public void Print(TWarehouse wh, string title = null) => Print(wh?.WarehouseTable, title);
 
@@ -149,7 +148,6 @@ namespace cp_lab_13
 
             y += _headerHeight;
 
-            // Rows
             while (_currentRow < _table.Rows.Count)
             {
                 if (y + _rowHeight > bounds.Bottom)
@@ -170,7 +168,7 @@ namespace cp_lab_13
                     if (v == null || v == DBNull.Value) text = string.Empty;
                     else
                     {
-                        // format currency/decimal columns nicely
+                        // format currency/decimal columns
                         if (_table.Columns[c].DataType == typeof(decimal) || _table.Columns[c].DataType == typeof(double) || _table.Columns[c].ColumnName.ToLowerInvariant().Contains("price") || _table.Columns[c].ColumnName.ToLowerInvariant().Contains("total"))
                         {
                             try { text = string.Format(CultureInfo.CurrentCulture, "{0:C2}", Convert.ToDecimal(v)); }

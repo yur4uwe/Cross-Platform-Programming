@@ -17,12 +17,18 @@ namespace cp_lab_13
         // made non-readonly so we can rebind when active warehouse changes
         private Func<string, List<Tuple<int, int>>> _searchFunc;
         private Func<int, string> _displayFunc;
-        private Action<int> _onSelect;
+        // second argument indicates "edit request" (double-enter)
+        private Action<int, bool> _onSelect;
         private readonly ToolStripDropDown _dropDown;
         private readonly ListBox _listBox;
         private readonly List<int> _resultIndices = new List<int>();
         private int _maxItems = 8;
         private bool _subscribedTextBoxControl = false;
+
+        // double-enter detection state
+        private int _lastEnterIndex = -1;
+        private int _lastEnterTicks = 0;
+        private const int DoubleEnterThresholdMs = 600;
 
         public int MaxItems
         {
@@ -34,7 +40,7 @@ namespace cp_lab_13
                                    ToolStripTextBox searchTextBox,
                                    Func<string, List<Tuple<int, int>>> searchFunc,
                                    Func<int, string> displayFunc,
-                                   Action<int> onSelect)
+                                   Action<int, bool> onSelect)
         {
             _ownerForm = ownerForm ?? throw new ArgumentNullException(nameof(ownerForm));
             _textBox = searchTextBox ?? throw new ArgumentNullException(nameof(searchTextBox));
@@ -68,13 +74,17 @@ namespace cp_lab_13
         }
 
         // Allow rebinding the search/display functions (use when active warehouse changes)
-        public void UpdateBindings(Func<string, List<Tuple<int, int>>> searchFunc, Func<int, string> displayFunc, Action<int> onSelect = null)
+        public void UpdateBindings(Func<string, List<Tuple<int, int>>> searchFunc, Func<int, string> displayFunc, Action<int, bool> onSelect = null)
         {
             if (searchFunc == null) throw new ArgumentNullException(nameof(searchFunc));
             if (displayFunc == null) throw new ArgumentNullException(nameof(displayFunc));
             _searchFunc = searchFunc;
             _displayFunc = displayFunc;
             if (onSelect != null) _onSelect = onSelect;
+
+            // reset double-enter state when rebinding
+            _lastEnterIndex = -1;
+            _lastEnterTicks = 0;
         }
 
         // Public method: call from the ToolStripTextBox.TextChanged event handle
@@ -136,6 +146,10 @@ namespace cp_lab_13
                 // nothing sensible to anchor to
                 return;
             }
+
+            // reset double-enter memory for new result set
+            _lastEnterIndex = -1;
+            _lastEnterTicks = 0;
         }
 
         public void Hide()
@@ -166,9 +180,13 @@ namespace cp_lab_13
                 }
                 catch { }
             }
+
+            // reset double-enter memory when closed
+            _lastEnterIndex = -1;
+            _lastEnterTicks = 0;
         }
 
-        // Public KeyDown handler: only keep Escape to hide the dropdown (no selection navigation)
+        // Public KeyDown handler: support Escape to hide the dropdown, Enter single-select and double-enter to request "edit"
         // Call this from the text box KeyDown event.
         public void TextBox_KeyDown(object sender, KeyEventArgs e)
         {
@@ -181,14 +199,39 @@ namespace cp_lab_13
                 }
                 else if (e.KeyCode == Keys.Enter)
                 {
-                    // select the top item (path of least resistance)
-                    if (_listBox.Items.Count > 0)
+                    if (_listBox.Items.Count == 0)
                     {
-                        SelectByListIndex(0);
-                        Hide();
-                        // prevent ding / further processing in textbox
+                        // nothing to select
                         e.Handled = true;
                         e.SuppressKeyPress = true;
+                        return;
+                    }
+
+                    int listIndex = 0; // we always use the top match for Enter actions
+                    int underlyingIndex = _resultIndices[listIndex];
+
+                    int now = Environment.TickCount;
+                    bool isDouble = (_lastEnterIndex == underlyingIndex) && (now - _lastEnterTicks <= DoubleEnterThresholdMs);
+
+                    if (isDouble)
+                    {
+                        // double-enter -> request edit and close dropdown
+                        SelectByListIndex(listIndex, true);
+                        Hide();
+                        _lastEnterIndex = -1;
+                        _lastEnterTicks = 0;
+                        e.Handled = true;
+                        e.SuppressKeyPress = true;
+                    }
+                    else
+                    {
+                        // single-enter -> select (no close) and remember for possible double-enter
+                        SelectByListIndex(listIndex, false);
+                        _lastEnterIndex = underlyingIndex;
+                        _lastEnterTicks = now;
+                        e.Handled = true;
+                        e.SuppressKeyPress = true;
+                        // keep dropdown open to allow double-enter
                     }
                 }
             }
@@ -205,7 +248,7 @@ namespace cp_lab_13
             }));
         }
 
-        private void SelectByListIndex(int listIndex)
+        private void SelectByListIndex(int listIndex, bool requestEdit)
         {
             if (listIndex < 0 || listIndex >= _resultIndices.Count)
                 return;
@@ -213,7 +256,7 @@ namespace cp_lab_13
             int underlyingIndex = _resultIndices[listIndex];
             try
             {
-                _onSelect(underlyingIndex);
+                _onSelect(underlyingIndex, requestEdit);
             }
             catch
             {

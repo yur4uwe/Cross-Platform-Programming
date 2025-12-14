@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Warehouses");
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Warehouses");
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.ProductGroubSelect = new System.Windows.Forms.ComboBox();
             this.HeaderGroup = new System.Windows.Forms.GroupBox();
@@ -72,6 +72,7 @@
             this.totalValuePerProviderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.averagePricePerGroupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.unitsDistributionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ClearButton = new System.Windows.Forms.Button();
             this.HeaderGroup.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.QuantityNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.WarehouseView)).BeginInit();
@@ -89,6 +90,7 @@
             // 
             // HeaderGroup
             // 
+            this.HeaderGroup.Controls.Add(this.ClearButton);
             this.HeaderGroup.Controls.Add(this.QuantityNumeric);
             this.HeaderGroup.Controls.Add(this.AddButton);
             this.HeaderGroup.Controls.Add(this.CostAmount);
@@ -268,10 +270,10 @@
             // 
             this.WarehouseTreeView.Location = new System.Drawing.Point(12, 133);
             this.WarehouseTreeView.Name = "WarehouseTreeView";
-            treeNode2.Name = "Warehouses";
-            treeNode2.Text = "Warehouses";
+            treeNode1.Name = "Warehouses";
+            treeNode1.Text = "Warehouses";
             this.WarehouseTreeView.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode2});
+            treeNode1});
             this.WarehouseTreeView.Size = new System.Drawing.Size(121, 390);
             this.WarehouseTreeView.TabIndex = 22;
             this.WarehouseTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.WarehousesTree_AfterSelect);
@@ -371,7 +373,7 @@
             // filterToolStripMenuItem1
             // 
             this.filterToolStripMenuItem1.Name = "filterToolStripMenuItem1";
-            this.filterToolStripMenuItem1.Size = new System.Drawing.Size(160, 22);
+            this.filterToolStripMenuItem1.Size = new System.Drawing.Size(189, 32);
             this.filterToolStripMenuItem1.Text = "Filter";
             this.filterToolStripMenuItem1.Click += new System.EventHandler(this.FilterButton_Click);
             // 
@@ -379,7 +381,7 @@
             // 
             this.clearToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("clearToolStripMenuItem.Image")));
             this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
-            this.clearToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.clearToolStripMenuItem.Size = new System.Drawing.Size(189, 32);
             this.clearToolStripMenuItem.Text = "Clear";
             this.clearToolStripMenuItem.Click += new System.EventHandler(this.clearToolStripMenuItem_Click);
             // 
@@ -468,6 +470,16 @@
             this.unitsDistributionToolStripMenuItem.Text = "Units Distribution";
             this.unitsDistributionToolStripMenuItem.Click += new System.EventHandler(this.unitsDistributionToolStripMenuItem_Click);
             // 
+            // ClearButton
+            // 
+            this.ClearButton.Location = new System.Drawing.Point(862, 57);
+            this.ClearButton.Name = "ClearButton";
+            this.ClearButton.Size = new System.Drawing.Size(75, 23);
+            this.ClearButton.TabIndex = 18;
+            this.ClearButton.Text = "Clear";
+            this.ClearButton.UseVisualStyleBackColor = true;
+            this.ClearButton.Click += new System.EventHandler(this.ClearButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -536,6 +548,7 @@
         private System.Windows.Forms.ToolStripMenuItem totalValuePerProviderToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem averagePricePerGroupToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem unitsDistributionToolStripMenuItem;
+        private System.Windows.Forms.Button ClearButton;
     }
 }
 

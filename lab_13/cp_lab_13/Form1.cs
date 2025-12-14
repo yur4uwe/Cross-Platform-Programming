@@ -20,6 +20,9 @@ namespace cp_lab_13
         private WarehouseManager _warehouseManager = new WarehouseManager();
         private TWarehouse _activeWarehouse;
 
+        // Editing state: underlying DataTable row index being edited, -1 = add/new
+        private int _editingRowIndex = -1;
+
         public Form1()
         {
             InitializeComponent();
@@ -44,6 +47,10 @@ namespace cp_lab_13
             // convert enum-typed columns to combo columns
             _activeWarehouse.ConvertEnumColumnsToCombo(WarehouseView);
 
+            // wire new handlers for selection editing and deletion
+            WarehouseView.CellDoubleClick += WarehouseView_CellDoubleClick;
+            WarehouseView.KeyDown += WarehouseView_KeyDown;
+
             // create component and wire events
             _searchDropdown = new FuzzySearchDropdown(
                 this,
@@ -52,9 +59,10 @@ namespace cp_lab_13
                 _activeWarehouse.FuzzySearchRows,
                 // display function for a result index -> shown string
                 idx => _activeWarehouse.WarehouseTable.Rows[idx]["Name"]?.ToString() ?? string.Empty,
-                // onSelect action: select underlying row in the grid
-                SelectUnderlyingRow
+                // onSelect action: (underlyingIndex, requestEdit)
+                OnFuzzySelected
             );
+
 
             NameFindTxtBox.KeyDown += _searchDropdown.TextBox_KeyDown;
 
@@ -65,6 +73,29 @@ namespace cp_lab_13
         private void NameFindTxtBox_TextChanged(object sender, EventArgs e)
         {
             _searchDropdown.ShowFor(NameFindTxtBox.Text);
+        }
+
+        private bool ValidColumnValue(string columnName, string value)
+        {
+            switch (columnName)
+            {
+                case "Provider":
+                    return Enum.TryParse(value, true, out Providers _);
+                case "Group":
+                    return Enum.TryParse(value, true, out ProductGroup _);
+                case "Currency":
+                    return Enum.TryParse(value, true, out Currency _);
+                case "Units":
+                    return Enum.TryParse(value, true, out Units _);
+                case "Quantity":
+                    return int.TryParse(value, out int _);
+                case "Cost":
+                    return decimal.TryParse(value, out decimal _);
+                case "Total":
+                    return decimal.TryParse(value, out decimal _);
+                default:
+                    return true;
+            }
         }
 
         // DataError handler prevents the DataGridView from throwing on invalid combo values
@@ -79,24 +110,9 @@ namespace cp_lab_13
             e.Cancel = true;
             e.ThrowException = false;
 
-            switch (colName)
+            if (ValidColumnValue(colName, val))
             {
-                case "Provider":
-                    if (Enum.TryParse(val, true, out Providers _))
-                        return;
-                    break;
-                case "Group":
-                    if (Enum.TryParse(val, true, out ProductGroup _))
-                        return;
-                    break;
-                case "Currency":
-                    if (Enum.TryParse(val, true, out Currency _))
-                        return;
-                    break;
-                case "Units":
-                    if (Enum.TryParse(val, true, out Units _))
-                        return;
-                    break;
+                return;
             }
 
             e.Cancel = false;
@@ -123,19 +139,63 @@ namespace cp_lab_13
                 MessageBox.Show("Input fields cannot contain commas");
             }
 
+            // Build item from header controls
+            var groupVal = ProductGroubSelect.SelectedItem;
+            ProductGroup group = ProductGroup.Books;
+            if (groupVal is ProductGroup g) group = g;
+            else if (!Enum.TryParse(ProductGroubSelect.Text, true, out group)) group = ProductGroup.Books;
+
+            var provVal = ProvidedSelect.SelectedItem;
+            Providers prov = Providers.ProviderA;
+            if (provVal is Providers p) prov = p;
+            else if (!Enum.TryParse(ProvidedSelect.Text, true, out prov)) prov = Providers.ProviderA;
+
+            var unitsVal = UnitsSelect.SelectedItem;
+            Units units = Units.Piece;
+            if (unitsVal is Units u) units = u;
+            else if (!Enum.TryParse(UnitsSelect.Text, true, out units)) units = Units.Piece;
+
+            var currVal = CurrencySelect.SelectedItem;
+            Currency curr = Currency.USD;
+            if (currVal is Currency c) curr = c;
+            else if (!Enum.TryParse(CurrencySelect.Text, true, out curr)) curr = Currency.USD;
 
             WarehouseItem row = new WarehouseItem(
-                (ProductGroup)ProductGroubSelect.SelectedIndex,
+                group,
                 ProductNameText.Text,
                 ManufacturerName.Text,
-                (Providers)ProvidedSelect.SelectedIndex,
-                (Units)UnitsSelect.SelectedIndex,
-                (Currency)CurrencySelect.SelectedIndex,
+                prov,
+                units,
+                curr,
                 quantity,
                 cost
             );
 
-            _activeWarehouse.AddWarehouseRow(row);
+            if (_editingRowIndex >= 0 && _editingRowIndex < _activeWarehouse.WarehouseTable.Rows.Count)
+            {
+                // Update existing DataRow
+                try
+                {
+                    DataRow dr = _activeWarehouse.WarehouseTable.Rows[_editingRowIndex];
+                    dr["Group"] = row.Group;
+                    dr["Name"] = row.Name;
+                    dr["Manufacturer"] = row.Manufacturer;
+                    dr["Provider"] = row.Provider;
+                    dr["Units"] = row.Units;
+                    dr["Currency"] = row.Currency;
+                    dr["Quantity"] = row.Quantity;
+                    dr["Price"] = row.Price;
+                    dr["Total"] = row.Quantity * row.Price;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Failed to update row: " + ex.Message);
+                }
+            }
+            else
+            {
+                _activeWarehouse.AddWarehouseRow(row);
+            }
         }
 
         private string LoadFile(bool save)
@@ -230,6 +290,21 @@ namespace cp_lab_13
             catch { }
         }
 
+        // Called by FuzzySearchDropdown on selection.
+        // requestEdit == true -> populate header controls for editing and set editing index.
+        // requestEdit == false -> just select the row in the grid.
+        private void OnFuzzySelected(int underlyingIndex, bool requestEdit)
+        {
+            if (requestEdit)
+            {
+                PopulateHeaderFromUnderlyingIndex(underlyingIndex);
+            }
+            else
+            {
+                SelectUnderlyingRow(underlyingIndex);
+            }
+        }
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             base.OnFormClosing(e);
@@ -308,7 +383,7 @@ namespace cp_lab_13
                 _searchDropdown.UpdateBindings(
                     _activeWarehouse.FuzzySearchRows,
                     idx => _activeWarehouse.WarehouseTable.Rows[idx]["Name"]?.ToString() ?? string.Empty,
-                    SelectUnderlyingRow
+                    OnFuzzySelected
                 );
             }
 
@@ -389,6 +464,273 @@ namespace cp_lab_13
 
             _activeWarehouse.ExportStatsToCsv(d, pathToSave);
             MessageBox.Show("Statistics saved successfully", "Statistics", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        // Populate header controls from a DataGridViewRow's underlying data
+        private void PopulateHeaderFromRow(DataGridViewRow dgvRow)
+        {
+            if (dgvRow == null) return;
+
+            try
+            {
+                // DataBoundItem should be DataRowView when bound to DataTable/DataView
+                var drv = dgvRow.DataBoundItem as DataRowView;
+                DataRow sourceRow = drv?.Row;
+
+                // If DataRowView not available, try reading cell values directly
+                object gVal = null;
+                object nameVal = null;
+                object manufVal = null;
+                object provVal = null;
+                object unitsVal = null;
+                object currVal = null;
+                object qtyVal = null;
+                object priceVal = null;
+
+                if (sourceRow != null)
+                {
+                    gVal = sourceRow["Group"];
+                    nameVal = sourceRow["Name"];
+                    manufVal = sourceRow["Manufacturer"];
+                    provVal = sourceRow["Provider"];
+                    unitsVal = sourceRow["Units"];
+                    currVal = sourceRow["Currency"];
+                    qtyVal = sourceRow["Quantity"];
+                    priceVal = sourceRow["Price"];
+
+                    // compute editing index in underlying table
+                    _editingRowIndex = _activeWarehouse.WarehouseTable.Rows.IndexOf(sourceRow);
+                }
+                else
+                {
+                    // fallback: read from cells
+                    gVal = dgvRow.Cells["Group"].Value;
+                    nameVal = dgvRow.Cells["Name"].Value;
+                    manufVal = dgvRow.Cells["Manufacturer"].Value;
+                    provVal = dgvRow.Cells["Provider"].Value;
+                    unitsVal = dgvRow.Cells["Units"].Value;
+                    currVal = dgvRow.Cells["Currency"].Value;
+                    qtyVal = dgvRow.Cells["Quantity"].Value;
+                    priceVal = dgvRow.Cells["Price"].Value;
+
+                    // can't reliably determine underlying DataTable index -> reset editing marker to -1
+                    _editingRowIndex = -1;
+                }
+
+                // set controls (handle enum/string/int conversions)
+                if (gVal != null && gVal != DBNull.Value)
+                {
+                    TrySetComboBoxFromValue<ProductGroup>(ProductGroubSelect, gVal);
+                }
+
+                if (provVal != null && provVal != DBNull.Value)
+                {
+                    TrySetComboBoxFromValue<Providers>(ProvidedSelect, provVal);
+                }
+
+                if (unitsVal != null && unitsVal != DBNull.Value)
+                {
+                    TrySetComboBoxFromValue<Units>(UnitsSelect, unitsVal);
+                }
+
+                if (currVal != null && currVal != DBNull.Value)
+                {
+                    TrySetComboBoxFromValue<Currency>(CurrencySelect, currVal);
+                }
+
+                ProductNameText.Text = nameVal != null && nameVal != DBNull.Value ? nameVal.ToString() : string.Empty;
+                ManufacturerName.Text = manufVal != null && manufVal != DBNull.Value ? manufVal.ToString() : string.Empty;
+
+                if (qtyVal != null && qtyVal != DBNull.Value && int.TryParse(qtyVal.ToString(), out int q))
+                {
+                    if (q < QuantityNumeric.Minimum) q = (int)QuantityNumeric.Minimum;
+                    if (q > QuantityNumeric.Maximum) q = (int)QuantityNumeric.Maximum;
+                    QuantityNumeric.Value = q;
+                }
+
+                CostAmount.Text = priceVal != null && priceVal != DBNull.Value ? priceVal.ToString() : string.Empty;
+
+                // keep button labelled "Update" (renamed per request)
+                AddButton.Text = "Update";
+            }
+            catch
+            {
+                // ignore errors while populating header
+            }
+        }
+
+        // New helper: populate header directly from an underlying DataTable row index
+        private void PopulateHeaderFromUnderlyingIndex(int underlyingRowIndex)
+        {
+            if (_activeWarehouse == null) return;
+            if (underlyingRowIndex < 0 || underlyingRowIndex >= _activeWarehouse.WarehouseTable.Rows.Count) return;
+
+            var sourceRow = _activeWarehouse.WarehouseTable.Rows[underlyingRowIndex];
+
+            object gVal = sourceRow["Group"];
+            object nameVal = sourceRow["Name"];
+            object manufVal = sourceRow["Manufacturer"];
+            object provVal = sourceRow["Provider"];
+            object unitsVal = sourceRow["Units"];
+            object currVal = sourceRow["Currency"];
+            object qtyVal = sourceRow["Quantity"];
+            object priceVal = sourceRow["Price"];
+
+            _editingRowIndex = underlyingRowIndex;
+
+            if (gVal != null && gVal != DBNull.Value)
+            {
+                TrySetComboBoxFromValue<ProductGroup>(ProductGroubSelect, gVal);
+            }
+
+            if (provVal != null && provVal != DBNull.Value)
+            {
+                TrySetComboBoxFromValue<Providers>(ProvidedSelect, provVal);
+            }
+
+            if (unitsVal != null && unitsVal != DBNull.Value)
+            {
+                TrySetComboBoxFromValue<Units>(UnitsSelect, unitsVal);
+            }
+
+            if (currVal != null && currVal != DBNull.Value)
+            {
+                TrySetComboBoxFromValue<Currency>(CurrencySelect, currVal);
+            }
+
+            ProductNameText.Text = nameVal != null && nameVal != DBNull.Value ? nameVal.ToString() : string.Empty;
+            ManufacturerName.Text = manufVal != null && manufVal != DBNull.Value ? manufVal.ToString() : string.Empty;
+
+            if (qtyVal != null && qtyVal != DBNull.Value && int.TryParse(qtyVal.ToString(), out int q))
+            {
+                if (q < QuantityNumeric.Minimum) q = (int)QuantityNumeric.Minimum;
+                if (q > QuantityNumeric.Maximum) q = (int)QuantityNumeric.Maximum;
+                QuantityNumeric.Value = q;
+            }
+
+            CostAmount.Text = priceVal != null && priceVal != DBNull.Value ? priceVal.ToString() : string.Empty;
+
+            AddButton.Text = "Update";
+        }
+
+        // Helper: set a ComboBox (bound to Enum.GetValues(enumType)) from a variety of possible source types
+        private void TrySetComboBoxFromValue<TEnum>(ComboBox cb, object value) where TEnum : struct
+        {
+            if (cb == null) return;
+            if (value == null || value == DBNull.Value) return;
+
+            if (value is TEnum enumVal)
+            {
+                cb.SelectedItem = enumVal;
+                return;
+            }
+
+            // try parse string
+            string s = value.ToString();
+            if (Enum.TryParse<TEnum>(s, true, out var parsed))
+            {
+                cb.SelectedItem = parsed;
+                return;
+            }
+
+            // try numeric conversion
+            try
+            {
+                var underlying = Enum.GetUnderlyingType(typeof(TEnum));
+                var conv = Convert.ChangeType(value, underlying);
+                var enumObj = Enum.ToObject(typeof(TEnum), conv);
+                if (enumObj is TEnum e)
+                {
+                    cb.SelectedItem = e;
+                    return;
+                }
+            }
+            catch { }
+
+            // fallback: do nothing (leave existing selection)
+        }
+
+        // Double-click on a row: populate header with its values for editing
+        private void WarehouseView_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            var dgv = (DataGridView)sender;
+            var row = dgv.Rows[e.RowIndex];
+            AddButton.Text = "Update";
+            PopulateHeaderFromRow(row);
+        }
+
+        // Key handling: Enter to load selected row into header, Delete to remove selected rows with confirmation
+        private void WarehouseView_KeyDown(object sender, KeyEventArgs e)
+        {
+            var dgv = (DataGridView)sender;
+
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                if (dgv.CurrentRow != null && dgv.CurrentRow.Index >= 0)
+                {
+                    PopulateHeaderFromRow(dgv.CurrentRow);
+                }
+            }
+            else if (e.KeyCode == Keys.Delete)
+            {
+                // gather selected rows
+                var selected = dgv.SelectedRows;
+                if (selected == null || selected.Count == 0)
+                {
+                    // if no full-row selection, try current row
+                    if (dgv.CurrentRow != null)
+                    {
+                        // FIX: Remove attempt to construct DataGridViewSelectedRowCollection
+                        var drv = dgv.CurrentRow.DataBoundItem as DataRowView;
+                        if (drv == null) return;
+                        if (MessageBox.Show($"Delete item '{drv.Row["Name"]}'?", "Confirm delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        {
+                            try { drv.Row.Delete(); } catch { }
+                        }
+                        return;
+                    }
+                    return;
+                }
+
+                int count = selected.Count;
+                var confirm = MessageBox.Show($"Delete {count} selected row(s)?", "Confirm delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (confirm != DialogResult.Yes) return;
+
+                // Collect DataRowView references first to avoid modifying collection while enumerating selected rows
+                var rowsToDelete = new List<DataRowView>();
+                foreach (DataGridViewRow r in selected)
+                {
+                    var drv = r.DataBoundItem as DataRowView;
+                    if (drv != null) rowsToDelete.Add(drv);
+                }
+
+                foreach (var drv in rowsToDelete)
+                {
+                    try
+                    {
+                        drv.Row.Delete();
+                    }
+                    catch { /* ignore individual failures */ }
+                }
+
+                // Reset editing index if the edited row was deleted
+                if (_editingRowIndex >= 0)
+                {
+                    // attempt to clear if row no longer exists
+                    if (_editingRowIndex >= _activeWarehouse.WarehouseTable.Rows.Count)
+                        _editingRowIndex = -1;
+                }
+            }
+        }
+
+        private void ClearButton_Click(object sender, EventArgs e)
+        {
+            _editingRowIndex = -1;
+            WarehouseView.ClearSelection();
+            AddButton.Text = "Add";
         }
     }
 }
